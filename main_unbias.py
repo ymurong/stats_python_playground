@@ -1,4 +1,4 @@
-from lib.descriptive_stats import mean, variance
+from core.descriptive_stats import mean, variance
 from typing import List, Callable
 import random
 import matplotlib.pyplot as plt
