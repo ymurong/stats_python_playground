@@ -1,6 +1,6 @@
 from collections import Counter
 from math import sqrt
-from typing import List
+from typing import List, Tuple, Optional
 
 
 def frequency(data: List[float]) -> float:
@@ -12,7 +12,7 @@ def frequency(data: List[float]) -> float:
     return ret
 
 
-def mode(data: List[float]) -> float:
+def mode(data: List[float]) -> Tuple[List[float], int]:
     """众数"""
     counter = Counter(data)
     if counter.most_common()[0][1] == 1:
@@ -49,7 +49,7 @@ def rng(data: List[float]) -> float:
     return max(data) - min(data)
 
 
-def quartile(data: List[float]) -> float:
+def quartile(data: List[float]) -> Tuple[float, float, float]:
     """四分位数"""
     n = len(data)
     q1, q2, q3 = None, None, None
