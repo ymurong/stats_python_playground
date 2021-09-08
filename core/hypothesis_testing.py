@@ -10,10 +10,12 @@ def z_test(data1: List[float], data2: List[float] = None, tail: TAIL = 'both',
            mu: float = 0, sigma1: float = 1, sigma2: float = None) -> Tuple[float, float]:
     assert tail in ['both', 'left', 'right'], 'tail should be one of "both", "left", "right"'
 
+    # 单个总体z检验
     if data2 is None:
         mean_val = mean(data1)
         se = sigma1 / sqrt(len(data1))
         z_val = (mean_val - mu) / se
+    # 两个总体z检验
     else:
         assert sigma2 is not None
         mean_diff = mean(data1) - mean(data2)
@@ -70,7 +72,8 @@ def t_test(data1: List[float], data2: List[float] = None, tail: TAIL = 'both',
     return t_val, df, p
 
 
-def t_test_paired(data1: List[float], data2: List[float], tail: TAIL = 'both', mu: float = 0):
+def t_test_paired(data1: List[float], data2: List[float], tail: TAIL = 'both', mu: float = 0) -> Tuple[
+    float, float, float]:
     """
     配对t检验
     """
@@ -78,7 +81,7 @@ def t_test_paired(data1: List[float], data2: List[float], tail: TAIL = 'both', m
     return t_test(data, tail=tail, mu=mu)
 
 
-def chi2_test(data: List[float], tail: TAIL = "both", sigma2: float = 1):
+def chi2_test(data: List[float], tail: TAIL = "both", sigma2: float = 1) -> Tuple[float, float, float]:
     """
     单个正态总体方差的假设检验
     """
@@ -98,7 +101,8 @@ def chi2_test(data: List[float], tail: TAIL = "both", sigma2: float = 1):
     return chi2_val, n - 1, p
 
 
-def f_test(data1, data2, tail="both", ratio=1):
+def f_test(data1: List[float], data2: List[float], tail: TAIL = "both", ratio: float = 1) -> Tuple[
+    float, float, float, float]:
     """
     单个正态总体方差的假设检验
     """
@@ -120,3 +124,32 @@ def f_test(data1, data2, tail="both", ratio=1):
         p = 1 - f.cdf(f_val, df1, df2)
 
     return f_val, df1, df2, p
+
+
+def anova_oneway(data: List[List[float]]) -> Tuple[float, float, float, float]:
+    """
+    单个factor的方差分析
+    """
+    k = len(data)
+    assert k > 1
+
+    group_means = [mean(group) for group in data]
+    group_szs = [len(group) for group in data]
+    n = sum(group_szs)
+    assert n > k
+
+    grand_mean = sum([group_mean * group_sz for group_mean, group_sz in zip(group_means, group_szs)]) / n
+
+    sst = sum(sum((y - grand_mean) ** 2 for y in group) for group in data)
+    ssg = sum((group_mean - grand_mean) ** 2 * group_sz for group_mean, group_sz in zip(group_means, group_szs))
+    sse = sst - ssg
+
+    dfg = k - 1
+    dfe = n - k
+    msg = ssg / dfg
+    mse = sse / dfe
+
+    f_value = msg / mse
+    p = 1 - f.cdf(f_value, dfg, dfe)
+
+    return f_value, dfg, dfe, p
